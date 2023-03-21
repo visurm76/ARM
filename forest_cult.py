@@ -32,14 +32,23 @@ class Culture(object):
         """
         kz_culture = ((31,10),(8,9))
         array = []
-        for i in self.other.connect_sqlite("SELECT kv,sknr,zk,amz1,amz2,amz3,amz4,kil2,kil3,kil4,dm11 FROM gubaha_kizel"):
+        dict_culture = {}
+        for i in self.other.connect_sqlite("SELECT kv,sknr,zk,amz1,amz2,amz3,amz4,\
+                                                   kil1,kil2,kil3,kil4,dm11 FROM gubaha_kizel"):
             if i[2] in kz_culture[0]:
-                array.append([int(i[0]), i[1], i[2], i[3], int(i[10])])
+                if i[2] == 31:
+                    age = 2000
+                else:
+                    age = 1900
+                array.append([int(i[0]), i[1], i[2], i[3], int(i[11]) + age])
             else:
                 if i[2] in kz_culture[1]:
-                    age = [j for j in i[4:7] if j !=None]
-                    print(age)
-                    array.append([int(i[0]), i[1], i[2], int(i[10])])
+                    if i[8] == 3:
+                        array.append([int(i[0]), i[1], i[2], i[4], int(i[11]) + 1900])
+                    elif i[9] == 3:
+                        array.append([int(i[0]), i[1], i[2], i[5], int(i[11]) + 1900])
+                    elif i[10] == 3:
+                        array.append([int(i[0]), i[1], i[2], i[6], int(i[11]) + 1900])
         return array
 
 
