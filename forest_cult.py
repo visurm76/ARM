@@ -1,5 +1,4 @@
 import sqlite3
-from sys import argv
 import datetime
 
 now_year = datetime.datetime.now()
@@ -30,12 +29,12 @@ class Culture(object):
     def filter_bd(self):
         """
         Функция выбирает лесные культуры и сравнивает год посадки и возраст
-        :return:
+        :return: Печатает на экран таблицу с ошибочными выделами
         """
         kz_culture = ((31, 10), (8, 9))
         array = []
 
-        """ Выборка из БД выделов с кат. земель - лесные культуры, насаждения с примесью л/к """
+        # Выборка из БД выделов с кат. земель - лесные культуры, насаждения с примесью л/к
 
         for i in self.other.connect_sqlite("SELECT kv,sknr,zk,amz1,amz2,amz3,amz4,\
                                                    kil1,kil2,kil3,kil4,dm11 FROM gubaha_kizel"):
@@ -55,7 +54,8 @@ class Culture(object):
                     elif i[10] == 3:
                         array.append([int(i[0]), i[1], i[2], i[6], int(i[11]) + age])
 
-            """ Проверяем вычисленный возраст по году посадки"""
+            # Проверяем вычисленный возраст по году посадки
+
             error_num = []
             for num in array:
                 age_culture = now_year.year - num[4]
@@ -63,7 +63,14 @@ class Culture(object):
                     continue
                 else:
                     error_num.append([num[0], num[1]])
-        return error_num
+
+        # Выводим в красивом виде
+        print('-------------')
+        print('|{:<5}|{:<5}|'.format('№кв.', '№выд.'))
+        print('-------------')
+        for i in error_num:
+            print('|{:<5}|{:<5}|'.format(i[0], i[1]))
+        print('-------------')
 
 
 class Breeds(object):
