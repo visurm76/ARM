@@ -23,30 +23,32 @@ class Data(object):
 
 
 class Culture(object):
+
+    kz_culture = ((31, 10), (8, 9))
+
     def __init__(self):
         self.other = Data()
 
-    def filter_bd(self):
+    def filter_bd(self, selekt):
         """
         Функция выбирает лесные культуры и сравнивает год посадки и возраст
         :return: Печатает на экран таблицу с ошибочными выделами
         """
-        kz_culture = ((31, 10), (8, 9))
+
         array = []
 
         # Выборка из БД выделов с кат. земель - лесные культуры, насаждения с примесью л/к
 
-        for i in self.other.connect_sqlite("SELECT kv,sknr,zk,amz1,amz2,amz3,amz4,\
-                                                   kil1,kil2,kil3,kil4,dm11 FROM gubaha_kizel"):
-            if i[2] == 31 or i[2] == 10 and i[3] < 25:
+        for i in self.other.connect_sqlite(selekt):
+            if i[2] in Culture.kz_culture[0] and i[3] < 24:
                 age = 2000
             else:
                 age = 1900
 
-            if i[2] in kz_culture[0]:
+            if i[2] in Culture.kz_culture[0]:
                 array.append([int(i[0]), i[1], i[2], i[3], int(i[11]) + age])
             else:
-                if i[2] in kz_culture[1]:
+                if i[2] in Culture.kz_culture[1]:
                     if i[8] == 3:
                         array.append([int(i[0]), i[1], i[2], i[4], int(i[11]) + age])
                     elif i[9] == 3:
@@ -57,6 +59,7 @@ class Culture(object):
             # Проверяем вычисленный возраст по году посадки
 
             error_num = []
+            #print(array)
             for num in array:
                 age_culture = now_year.year - num[4]
                 if age_culture == num[3]:
@@ -65,24 +68,38 @@ class Culture(object):
                     error_num.append([num[0], num[1]])
 
         # Выводим в красивом виде
-        print('-------------')
+        print('Несоответствие: возраст и год посадки л/к')
+        print('---------------------------')
         print('|{:<5}|{:<5}|'.format('№кв.', '№выд.'))
-        print('-------------')
+        print('---------------------------')
         for i in error_num:
-            print('|{:<5}|{:<5}|'.format(i[0], i[1]))
-        print('-------------')
+            print('|{:<5}|{:<5}|'.format(int(i[0]), i[1]))
+        print('---------------------------')
 
 
-class Breeds(object):
+class BreedsOrigin(Data):
+
     def __init__(self):
-        self.other = Data()
+        self.other = Culture()
 
-    def filter_bd(self):
-        array = []
-        for i in self.other.connect_sqlite("SELECT kv,sknr,zk,amz1,dm11 FROM gubaha_kizel"):
-            if i[2] == 31 or i[2] == 10 or i[2] == 8:
-                array.append([int(i[0]), int(i[1]), int(i[2]), int(i[3]), int(i[4])])
-        return array
+    def filter_bd(self, selekt):
+        """
+        Проверяет соответствие категории земель (л/к) и происхождения
+        :param selekt: SQL запрос к БД
+        :return: Список списков (квартал, выдел, категория земель)
+        """
+        mass = []
+
+        for i in self.connect_sqlite(selekt):
+            if i[2] in Culture.kz_culture[0] and i[5] != 3:
+                mass.append([int(i[0]), i[1], i[2], i[3], i[4], i[5]])
+        print('Несоответствие: категория земель и происхождение')
+        print('------------------------')
+        print('|{:<5}|{:<5}|{:<5}|'.format('№кв.', '№выд.', 'Кат.земель'))
+        print('------------------------')
+        for i in mass:
+            print('|{:<5}|{:<5}|{:<10}|'.format(i[0], i[1], i[2]))
+        print('------------------------')
 
 
 class Age(Culture):
@@ -95,5 +112,6 @@ class Tax(Culture):
 
 s = Data()
 d = Culture()
-# print(s.connect_sqlite())
-print(d.filter_bd())
+z = BreedsOrigin()
+print(d.filter_bd("SELECT kv,sknr,zk,amz1,amz2,amz3,amz4,kil1,kil2,kil3,kil4,dm11 FROM gubaha_kizel"))
+print(z.filter_bd("SELECT kv,sknr,zk,ard1,mr1,kil1 FROM gubaha_kizel"))
