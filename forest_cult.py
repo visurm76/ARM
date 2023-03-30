@@ -3,9 +3,29 @@ import datetime
 
 now_year = datetime.datetime.now()
 path_files = 'gubaha.sqlite'
+selects = "SELECT kv,sknr,zk,amz1,amz2,amz3,amz4,kil1,kil2,kil3,kil4,dm11 FROM gubaha_kizel"
+dictData = {'Квартал':'kv',
+            'Выдел': 'sknr',
+            'Адм.район':'mk',
+            'Кат.защит.':'mk',
+            'ПМ1':'up1',
+            'ПМ%':'up1p',
+            'РТК1': 'ptk1',
+            'ПМ2':'up2',
+            'РТК2': 'ptk2',
+            'ПМ3':'up3',
+            'РТК3': 'ptk3',
+            'Цел.порода': 'mr'
+            }
 
 
-# select = "SELECT kv,sknr,zk FROM gubaha_kizel"
+def selectFunc(info):
+    arr = []
+    for i in info:
+        arr.append(dictData[i])
+    sel = "SELECT " + ' '.join(arr) + " FROM gubaha_kizel"
+    return sel
+
 class Data(object):
     def connect_sqlite(self, select):
         """
@@ -21,9 +41,27 @@ class Data(object):
         conn.close()
         return results
 
+class Maket2(object):
+
+    def __init__(self):
+        self.other = Data()
+"""
+
+    def projectEvents(self, selekt):
+        projevents = []
+        for k,v in
+        for proj in  self.other.connect_sqlite(selekt):
+            for i in proj:
+
+            projevents.append(proj)
+        return projevents"""
+
+
+
+
+
 
 class Culture(object):
-
     kz_culture = ((31, 10), (8, 9))
 
     def __init__(self):
@@ -59,7 +97,7 @@ class Culture(object):
             # Проверяем вычисленный возраст по году посадки
 
             error_num = []
-            #print(array)
+            # print(array)
             for num in array:
                 age_culture = now_year.year - num[4]
                 if age_culture == num[3]:
@@ -78,7 +116,6 @@ class Culture(object):
 
 
 class BreedsOrigin(Data):
-
     def __init__(self):
         self.other = Culture()
 
@@ -102,16 +139,13 @@ class BreedsOrigin(Data):
         print('------------------------')
 
 
-class Age(Culture):
-    pass
-
-
-class Tax(Culture):
-    pass
-
-
 s = Data()
 d = Culture()
 z = BreedsOrigin()
-print(d.filter_bd("SELECT kv,sknr,zk,amz1,amz2,amz3,amz4,kil1,kil2,kil3,kil4,dm11 FROM gubaha_kizel"))
-print(z.filter_bd("SELECT kv,sknr,zk,ard1,mr1,kil1 FROM gubaha_kizel"))
+#print(d.filter_bd("SELECT kv,sknr,zk,amz1,amz2,amz3,amz4,kil1,kil2,kil3,kil4,dm11 FROM gubaha_kizel"))
+#print(z.filter_bd("SELECT kv,sknr,zk,ard1,mr1,kil1 FROM gubaha_kizel"))
+
+g = Maket2()
+#print(g.projectEvents("SELECT kv,sknr, up1, up1p, ptk1, up2, ptk2, up3, ptk3 FROM gubaha_kizel"))
+
+print(selectFunc(['Квартал', 'Выдел']))
