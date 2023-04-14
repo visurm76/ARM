@@ -28,5 +28,8 @@ def connect_sqlite(select):
     cur.execute(selectAll(select))  # "SELECT kv,sknr,zk FROM gubaha_kizel"
     # Результат запроса в виде списка кортежей
     results = cur.fetchall()
+    # Сохраняем изменения
+    conn.commit()
+    #Закрываем соединение
     conn.close()
     return results
